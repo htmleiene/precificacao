@@ -27,23 +27,26 @@
                     <option value="pontual">Serviço Pontual (ex: desenvolvimento de um site)</option>
                 </select>
 
-                <!-- Campos Dinâmicos (serão preenchidos via JavaScript) -->
+               <!-- Campos para Serviço Frequente -->
                 <div id="campos_frequente" class="campos-servico">
                     <label for="horas_mes">Horas Trabalhadas por Mês:</label>
-                    <input type="number" name="horas_mes" id="horas_mes">
+                    <input type="number" name="horas_mes" id="horas_mes" required>
                 </div>
 
+                <!-- Campos para Serviço por Demanda -->
                 <div id="campos_demanda" class="campos-servico" style="display: none;">
                     <label for="horas_demanda">Horas por Demanda:</label>
-                    <input type="number" name="horas_demanda" id="horas_demanda">
+                    <input type="number" name="horas_demanda" id="horas_demanda" required>
                 </div>
 
+                <!-- Campos para Serviço Pontual -->
                 <div id="campos_pontual" class="campos-servico" style="display: none;">
                     <label for="valor_projeto">Valor do Projeto (R$):</label>
-                    <input type="number" name="valor_projeto" id="valor_projeto">
+                    <input type="number" name="valor_projeto" id="valor_projeto" required>
                     <label for="horas_projeto">Horas do Projeto:</label>
-                    <input type="number" name="horas_projeto" id="horas_projeto">
+                    <input type="number" name="horas_projeto" id="horas_projeto" required>
                 </div>
+
 
                 <button type="submit" class="btn-primary">Calcular</button>
             </form>
@@ -57,16 +60,31 @@
 
     <!-- Script para mostrar/ocultar campos dinâmicos -->
     <script>
-        document.getElementById("tipo_servico").addEventListener("change", function() {
-            // Oculta todos os campos
-            document.querySelectorAll(".campos-servico").forEach(function(campo) {
-                campo.style.display = "none";
-            });
+        document.addEventListener("DOMContentLoaded", function () {
+            const tipoServicoSelect = document.getElementById("tipo_servico");
+            const form = document.querySelector("form");
 
-            // Mostra os campos correspondentes ao tipo de serviço selecionado
-            const tipoServico = this.value;
-            document.getElementById("campos_" + tipoServico).style.display = "block";
+            // Função para atualizar os campos visíveis
+            function atualizarCampos() {
+                document.querySelectorAll(".campos-servico").forEach(campo => {
+                    const isAtivo = campo.id === "campos_" + tipoServicoSelect.value;
+                    campo.style.display = isAtivo ? "block" : "none";
+                    
+                    // Desabilita inputs escondidos para evitar erro de validação
+                    campo.querySelectorAll("input").forEach(input => {
+                        input.required = isAtivo; // Define required apenas para os visíveis
+                        input.disabled = !isAtivo; // Desabilita os escondidos para evitar foco
+                    });
+                });
+            }
+
+            // Evento de mudança no tipo de serviço
+            tipoServicoSelect.addEventListener("change", atualizarCampos);
+
+            // Atualiza os campos ao carregar a página (para o caso de reload)
+            atualizarCampos();
         });
+
     </script>
 </body>
 </html>

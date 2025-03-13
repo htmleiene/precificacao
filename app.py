@@ -97,7 +97,7 @@ def logout():
     session.pop("valor_hora", None)
     return redirect(url_for("index"))
 
-# Rota do formulário específico da área
+# Rota do formulário principal
 @app.route("/formulario", methods=["GET", "POST"])
 def formulario():
     if "usuario" not in session or "area" not in session:
@@ -107,38 +107,33 @@ def formulario():
         tipo_servico = request.form.get("tipo_servico")
         session["tipo_servico"] = tipo_servico
 
-        # Salva as horas na sessão se for serviço frequente
+        # Redireciona para a rota específica com base no tipo de serviço
         if tipo_servico == "frequente":
-            session["horas_mes"] = request.form.get("horas_mes")
             return redirect(url_for("calcular_frequente"))
-        
         elif tipo_servico == "demanda":
-            session["horas_mes"] = request.form.get("horas_mes")
             return redirect(url_for("calcular_demanda"))
-        
         elif tipo_servico == "pontual":
-            session["horas_mes"] = request.form.get("horas_mes")
             return redirect(url_for("calcular_pontual"))
 
     # Obtém a remuneração média da área selecionada
     area = session["area"]
-    remuneracao_media = salarios_medios.get(area, 0)  # Usa o dicionário de salários
+    remuneracao_media = salarios_medios.get(area, 0)
     return render_template("formulario.html", remuneracao_media=remuneracao_media)
 
+# Rota para cálculo de serviço frequente
 @app.route("/calcular_frequente", methods=["GET", "POST"])
 def calcular_frequente():
     if "usuario" not in session or "area" not in session or "tipo_servico" not in session:
         return redirect(url_for("index"))
 
     if request.method == "POST":
-        horas_mes = float(session.get("horas_mes", request.form.get("horas_mes", 1)))  # Pega da sessão ou do form
-        remuneracao_media = salarios_medios.get(session["area"], 50000)  
+        horas_mes = float(request.form.get("horas_mes"))
+        remuneracao_media = salarios_medios.get(session["area"], 50000)
         valor_hora = remuneracao_media / horas_mes
         session["valor_hora"] = valor_hora
         return redirect(url_for("resultado"))
 
-    return render_template("calcular_frequente.html", horas_mes=session.get("horas_mes", ""))
-
+    return render_template("calcular_frequente.html")
 
 # Rota para cálculo de serviço por demanda
 @app.route("/calcular_demanda", methods=["GET", "POST"])

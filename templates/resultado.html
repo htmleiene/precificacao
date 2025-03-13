@@ -4,14 +4,143 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Resultado</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <style>
+          /* Variáveis globais */
+          :root {
+            --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-secondary: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --light-color: #f8f9fa;
+            --dark-color: #343a40;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --font-family: 'Open Sans', sans-serif;
+          }
+          
+          /* Estilos globais */
+          body {
+            font-family: var(--font-family);
+            background: var(--light-color);
+            color: var(--dark-color);
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+          }
+          
+          /* Cabeçalho */
+          header {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 50px 20px;
+            text-align: center;
+            width: 100%;
+            box-shadow: var(--shadow);
+          }
+          
+          header h1 {
+            font-size: 2.5rem;
+            font-weight: bold;
+          }
+          
+          /* Resultado */
+          .resultado-card {
+            max-width: 500px;
+            margin: 40px auto;
+            padding: 2rem;
+            background: white;
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            text-align: center;
+          }
+          
+          .resultado-card h3 {
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+          }
+          
+          .valor-destaque {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--success-color);
+            margin: 20px 0;
+          }
+          
+          .botoes-acao {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+          }
+          
+          .botoes-acao .btn {
+            padding: 12px 20px;
+            font-size: 1rem;
+            border-radius: 25px;
+            text-align: center;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+          }
+          
+          .btn-success {
+            background: var(--success-color);
+            color: white;
+          }
+          
+          .btn-success:hover {
+            opacity: 0.9;
+            transform: scale(1.05);
+          }
+          
+          .btn-secondary {
+            background: var(--gradient-secondary);
+            color: white;
+          }
+          
+          .btn-secondary:hover {
+            opacity: 0.9;
+            transform: scale(1.05);
+          }
+          
+          /* Rodapé */
+          footer {
+            background: var(--dark-color);
+            color: white;
+            text-align: center;
+            padding: 20px 0;
+            width: 100%;
+            margin-top: auto;
+          }
+          
+          footer p {
+            margin: 0;
+            font-size: 0.9rem;
+          }
+      
+    </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Resultado</h1>
-        <p>Área: {{ area }}</p>
-        <p>Valor por Hora: R$ {{ valor_hora|round(2) }}</p>
-        <a href="{{ url_for('logout') }}" class="btn">Logout</a>
+    <header>
+        <h1>Resultado da Precificação</h1>
+    </header>
+    
+    <div class="resultado-card">
+        <h3>Área Calculada</h3>
+        <p><strong>Área de Atuação:</strong> {{ session.get("area", "Não informada") }}</p>
+        <p><strong>Valor por Hora:</strong> R$ {{ valor_hora | round(2) if valor_hora is not none else "0.00" }}</p>
+       
+        <div class="botoes-acao">
+            <a href="{{ url_for('index') }}" class="btn btn-secondary">Nova Simulação</a>
+            <a href="{{ url_for('logout') }}" class="btn btn-success">Logout</a>
+        </div>
     </div>
+    
+    <footer>
+        <p>&copy; 2025 - Todos os direitos reservados</p>
+    </footer>
 </body>
 </html>

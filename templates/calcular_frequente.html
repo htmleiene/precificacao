@@ -14,7 +14,7 @@
 
     <form method="POST">
         <label for="horas_mes">Horas por Mês:</label>
-        <input type="number" id="horas_mes" name="horas_mes" step="0.01" required>
+        <input type="number" id="horas_mes" name="horas_mes" step="0.01" value="{{ request.form.get('horas_mes', '') }}" required>
         <button type="submit" class="btn btn-primary">Calcular</button>
     </form>
 

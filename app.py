@@ -1,6 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, session, send_file
 from datetime import datetime
-import requests
 import sqlite3
 from io import BytesIO
 from reportlab.lib.pagesizes import letter
@@ -8,6 +7,17 @@ from reportlab.pdfgen import canvas
 
 app = Flask(__name__)
 app.secret_key = "sua_chave_secreta"  # Chave para criptografar a sessão
+
+# Dicionário de salários médios
+salarios_medios = {
+    "TI": 7_431,  # Engenheiros de Computação
+    "Design": 7_347,  # Autores roteiristas
+    "Fotografia": 4_213,  # Desenhista Industrial de Calçados
+    "Consultoria": 7_524,  # Arquitetos e Engenheiros
+    "Educação": 3_726,  # Professores de Artesanato
+    "Trabalhos Manuais": 3_726,  # Professores de Artesanato
+    "Saúde": 4_000  # Média estimada para profissionais da saúde
+}
 
 # Dados de usuários (simulado)
 usuarios = {}
@@ -26,33 +36,6 @@ def init_db():
     conn.close()
 
 init_db()
-
-# Função para obter remuneração média da API do Adzuna
-def obter_remuneracao_adzuna(area, localizacao="Brasil"):
-    app_id = "{API_ID}"  # Substitua pelo seu App ID
-    app_key = "{API_KEY}"  # Substitua pelo seu App Key
-    url = f"https://api.adzuna.com/v1/api/jobs/br/salary_stats"
-    params = {
-        "app_id": app_id,
-        "app_key": app_key,
-        "location0": localizacao,
-        "what": area,
-        "content-type": "application/json"
-    }
-    try:
-        print(f"Consultando API para a área: {area}")  # Log para depuração
-        response = requests.get(url, params=params)
-        if response.status_code == 200:
-            dados = response.json()
-            print(f"Dados retornados pela API: {dados}")  # Log para depuração
-            # Retorna a remuneração média (em R$/ano)
-            return dados.get("mean", 50000) / 12  # Converte para R$/mês
-        else:
-            print(f"Erro na API: {response.status_code}")
-            return 50000 / 12  # Valor padrão em caso de erro
-    except Exception as e:
-        print(f"Erro ao acessar a API: {e}")
-        return 50000 / 12  # Valor padrão em caso de exceção
 
 # Rota principal (login)
 @app.route("/", methods=["GET", "POST"])
@@ -91,12 +74,27 @@ def area():
         session["area"] = area  # Armazena a área na sessão
         return redirect(url_for("formulario"))
 
-    return render_template("area.html")
+    return render_template("area.html", areas=salarios_medios.keys())
+
+# Rota de resultado (exibe o valor por hora)
+@app.route("/resultado")
+def resultado():
+    if "usuario" not in session or "area" not in session or "valor_hora" not in session:
+        return redirect(url_for("index"))
+
+    # Obtém os valores da sessão
+    area = session["area"]
+    valor_hora = session["valor_hora"]
+
+    # Renderiza o template com os valores
+    return render_template("resultado.html", area=area, valor_hora=valor_hora)
 
 # Rota de logout
 @app.route("/logout")
 def logout():
     session.pop("usuario", None)
+    session.pop("area", None)
+    session.pop("valor_hora", None)
     return redirect(url_for("index"))
 
 # Rota do formulário específico da área
@@ -109,17 +107,22 @@ def formulario():
         tipo_servico = request.form.get("tipo_servico")
         session["tipo_servico"] = tipo_servico
 
-        # Redireciona para a próxima etapa com base no tipo de serviço
+        # Salva as horas na sessão se for serviço frequente
         if tipo_servico == "frequente":
+            session["horas_mes"] = request.form.get("horas_mes")
             return redirect(url_for("calcular_frequente"))
+        
         elif tipo_servico == "demanda":
+            session["horas_mes"] = request.form.get("horas_mes")
             return redirect(url_for("calcular_demanda"))
+        
         elif tipo_servico == "pontual":
+            session["horas_mes"] = request.form.get("horas_mes")
             return redirect(url_for("calcular_pontual"))
 
     # Obtém a remuneração média da área selecionada
     area = session["area"]
-    remuneracao_media = obter_remuneracao_adzuna(area)  # Usa a API do Adzuna
+    remuneracao_media = salarios_medios.get(area, 0)  # Usa o dicionário de salários
     return render_template("formulario.html", remuneracao_media=remuneracao_media)
 
 @app.route("/calcular_frequente", methods=["GET", "POST"])
@@ -128,14 +131,16 @@ def calcular_frequente():
         return redirect(url_for("index"))
 
     if request.method == "POST":
-        horas_mes = float(request.form.get("horas_mes"))
-        remuneracao_media = obter_remuneracao_adzuna(session["area"])
+        horas_mes = float(session.get("horas_mes", request.form.get("horas_mes", 1)))  # Pega da sessão ou do form
+        remuneracao_media = salarios_medios.get(session["area"], 50000)  
         valor_hora = remuneracao_media / horas_mes
         session["valor_hora"] = valor_hora
         return redirect(url_for("resultado"))
 
-    return render_template("calcular_frequente.html")
+    return render_template("calcular_frequente.html", horas_mes=session.get("horas_mes", ""))
 
+
+# Rota para cálculo de serviço por demanda
 @app.route("/calcular_demanda", methods=["GET", "POST"])
 def calcular_demanda():
     if "usuario" not in session or "area" not in session or "tipo_servico" not in session:
@@ -143,13 +148,14 @@ def calcular_demanda():
 
     if request.method == "POST":
         horas_demanda = float(request.form.get("horas_demanda"))
-        remuneracao_media = obter_remuneracao_adzuna(session["area"])
+        remuneracao_media = salarios_medios.get(session["area"], 50000)  # Usa o dicionário de salários
         valor_hora = remuneracao_media / horas_demanda
         session["valor_hora"] = valor_hora
         return redirect(url_for("resultado"))
 
     return render_template("calcular_demanda.html")
 
+# Rota para cálculo de serviço pontual
 @app.route("/calcular_pontual", methods=["GET", "POST"])
 def calcular_pontual():
     if "usuario" not in session or "area" not in session or "tipo_servico" not in session:
@@ -163,46 +169,6 @@ def calcular_pontual():
         return redirect(url_for("resultado"))
 
     return render_template("calcular_pontual.html")
-
-# Rota de resultado
-@app.route("/resultado", methods=["GET", "POST"])
-def resultado():
-    if "usuario" not in session or "area" not in session:
-        return redirect(url_for("index"))
-
-    if request.method == "POST":
-        # Captura os dados do formulário
-        dados = request.form.to_dict()
-        session["dados"] = dados
-
-        # Lógica de cálculo
-        try:
-            ganho_desejado = float(dados.get("ganho_desejado"))
-            custos_fixos = float(dados.get("custos_fixos"))
-            horas_trabalhadas = float(dados.get("horas_trabalhadas"))
-            if ganho_desejado < 0 or custos_fixos < 0 or horas_trabalhadas <= 0:
-                return render_template("formulario.html", erro="Valores inválidos. Insira números positivos.")
-            valor_hora = (ganho_desejado + custos_fixos) / horas_trabalhadas
-            session["valor_hora"] = valor_hora
-        except ValueError:
-            return render_template("formulario.html", erro="Por favor, insira valores numéricos válidos.")
-
-        return redirect(url_for("extras"))
-
-    # Verifica se o valor_hora está na sessão
-    if "valor_hora" not in session:
-        return redirect(url_for("formulario"))
-
-    # Renderiza o template com o valor_hora
-    return render_template("resultado.html", valor_hora=session["valor_hora"])
-
-# Rota de funcionalidades extras
-@app.route("/extras")
-def extras():
-    if "usuario" not in session or "valor_hora" not in session:
-        return redirect(url_for("index"))
-
-    return render_template("extras.html", valor_hora=session["valor_hora"])
 
 # Rota para salvar cálculo no banco de dados
 @app.route("/salvar_calculo")
@@ -246,7 +212,7 @@ def compartilhar(calculo_id):
     conn.close()
 
     if calculo:
-        return render_template("compartilhar.html", calculo=calculo)
+        return render_template("compartilhas.html", calculo=calculo)
     else:
         return redirect(url_for("extras", erro="Cálculo não encontrado."))
 

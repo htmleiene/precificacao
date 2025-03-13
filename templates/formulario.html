@@ -18,8 +18,7 @@
     <div class="container">
         <div class="upload-container">
             <form method="POST">
-                <p>Remuneração média para {{ session["area"] }}: R$ {{ remuneracao_media|round(2) }}/mês</p>
-                
+                <p>Remuneração média para {{ session["area"] }}: R$ {{ remuneracao_media if remuneracao_media is not none else 0|round(2) }}/mês</p>                                
                 <!-- Seleção do Tipo de Serviço -->
                 <label for="tipo_servico">Tipo de Serviço:</label>
                 <select name="tipo_servico" id="tipo_servico" required>

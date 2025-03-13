@@ -3,24 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Serviço Frequente - Calculadora de Valor/Hora</title>
+    <title>Calcular Serviço Frequente</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
 <body>
     <header>
-        <h1>Serviço Frequente</h1>
-        <h2>Quantas horas você trabalha por mês?</h2>
+        <h1>AutonomoCalc</h1>
+        <h2>Calculadora para Autônomos</h2>
     </header>
-    <div class="container">
-        <div class="upload-container">
-            <form method="POST">
-                <input type="number" name="horas_mes" placeholder="Horas por Mês" required>
-                <button type="submit" class="btn-primary">Calcular</button>
-            </form>
-        </div>
-    </div>
+
+    <form method="POST">
+        <label for="horas_mes">Horas por Mês:</label>
+        <input type="number" id="horas_mes" name="horas_mes" step="0.01" required>
+        <button type="submit" class="btn btn-primary">Calcular</button>
+    </form>
+
     <footer>
-        <p>© 2023 Calculadora de Valor/Hora</p>
+        <p>&copy; 2023 AutonomoCalc. Todos os direitos reservados.</p>
     </footer>
 </body>
 </html>

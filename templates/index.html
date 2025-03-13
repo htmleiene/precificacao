@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Calculadora de Valor/Hora</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Cabeçalho -->
+    <header class="masthead text-center text-white">
+        <div class="masthead-content">
+            <div class="container px-5">
+                <h1 class="masthead-heading mb-0">Calculadora de Valor/Hora</h1>
+                <h2 class="masthead-subheading mb-0">Para Autônomos</h2>
+                <div class="mt-5">
+                    <form method="POST" class="form-inline justify-content-center">
+                        <div class="form-group mx-2">
+                            <input type="email" name="email" class="form-control" placeholder="E-mail" required>
+                        </div>
+                        <div class="form-group mx-2">
+                            <input type="password" name="senha" class="form-control" placeholder="Senha" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary mx-2">Entrar</button>
+                    </form>
+                    <a href="{{ url_for('cadastro') }}" class="btn btn-secondary mt-3">Cadastrar</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Rodapé -->
+    <footer class="py-5 bg-black">
+        <div class="container px-5">
+            <p class="m-0 text-center text-white small">© 2023 Calculadora de Valor/Hora</p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+</body>
+</html>

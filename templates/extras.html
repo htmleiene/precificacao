@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Funcionalidades Extras - Calculadora de Valor/Hora</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Cabeçalho -->
+    <header>
+        <h1>Funcionalidades Extras</h1>
+        <h2>Valor/Hora: R$ {{ "%.2f"|format(valor_hora) }}</h2>
+    </header>
+
+    <!-- Funcionalidades -->
+    <div class="container">
+        <div class="upload-container">
+            <a href="{{ url_for('salvar_calculo') }}" class="btn-primary">Salvar Cálculo</a>
+            <a href="{{ url_for('exportar_pdf') }}" class="btn-primary">Exportar PDF</a>
+            <a href="{{ url_for('compartilhar') }}" class="btn-primary">Compartilhar</a>
+        </div>
+    </div>
+
+    <!-- Rodapé -->
+    <footer>
+        <p>© 2023 Calculadora de Valor/Hora</p>
+    </footer>
+</body>
+</html>

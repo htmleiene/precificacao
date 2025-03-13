@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Serviço por Demanda - Calculadora de Valor/Hora</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <header>
+        <h1>Serviço por Demanda</h1>
+        <h2>Quantas horas você gasta por demanda?</h2>
+    </header>
+    <div class="container">
+        <div class="upload-container">
+            <form method="POST">
+                <input type="number" name="horas_demanda" placeholder="Horas por Demanda" required>
+                <button type="submit" class="btn-primary">Calcular</button>
+            </form>
+        </div>
+    </div>
+    <footer>
+        <p>© 2023 Calculadora de Valor/Hora</p>
+    </footer>
+</body>
+</html>

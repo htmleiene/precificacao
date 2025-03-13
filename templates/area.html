@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Escolha a Área - Calculadora de Valor/Hora</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <header>
+        <h1>Escolha a Área</h1>
+        <h2>Selecione a área de atuação</h2>
+    </header>
+    <div class="container">
+        <div class="upload-container">
+            <form method="POST">
+                <select name="area" required>
+                    <option value="TI">TI</option>
+                    <option value="Design">Design</option>
+                    <option value="Fotografia">Fotografia</option>
+                    <option value="Consultoria">Consultoria</option>
+                    <option value="Educação">Educação</option>
+                    <option value="Trabalho Manual">Trabalho Manual</option>
+                </select>
+                <button type="submit" class="btn-primary">Próximo</button>
+            </form>
+        </div>
+    </div>
+    <footer>
+        <p>© 2023 Calculadora de Valor/Hora</p>
+    </footer>
+</body>
+</html>

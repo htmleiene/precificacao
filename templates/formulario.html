@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulário - Calculadora de Valor/Hora</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Cabeçalho -->
+    <header>
+        <h1>Formulário</h1>
+        <h2>Preencha os dados para calcular o valor/hora</h2>
+    </header>
+
+    <!-- Formulário -->
+    <div class="container">
+        <div class="upload-container">
+            <form method="POST">
+                <p>Remuneração média para {{ session["area"] }}: R$ {{ remuneracao_media|round(2) }}/mês</p>
+                
+                <!-- Seleção do Tipo de Serviço -->
+                <label for="tipo_servico">Tipo de Serviço:</label>
+                <select name="tipo_servico" id="tipo_servico" required>
+                    <option value="frequente">Serviço Frequente (ex: aulas semanais)</option>
+                    <option value="demanda">Serviço por Demanda (ex: correção de trabalhos)</option>
+                    <option value="pontual">Serviço Pontual (ex: desenvolvimento de um site)</option>
+                </select>
+
+                <!-- Campos Dinâmicos (serão preenchidos via JavaScript) -->
+                <div id="campos_frequente" class="campos-servico">
+                    <label for="horas_mes">Horas Trabalhadas por Mês:</label>
+                    <input type="number" name="horas_mes" id="horas_mes">
+                </div>
+
+                <div id="campos_demanda" class="campos-servico" style="display: none;">
+                    <label for="horas_demanda">Horas por Demanda:</label>
+                    <input type="number" name="horas_demanda" id="horas_demanda">
+                </div>
+
+                <div id="campos_pontual" class="campos-servico" style="display: none;">
+                    <label for="valor_projeto">Valor do Projeto (R$):</label>
+                    <input type="number" name="valor_projeto" id="valor_projeto">
+                    <label for="horas_projeto">Horas do Projeto:</label>
+                    <input type="number" name="horas_projeto" id="horas_projeto">
+                </div>
+
+                <button type="submit" class="btn-primary">Calcular</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Rodapé -->
+    <footer>
+        <p>© 2023 Calculadora de Valor/Hora</p>
+    </footer>
+
+    <!-- Script para mostrar/ocultar campos dinâmicos -->
+    <script>
+        document.getElementById("tipo_servico").addEventListener("change", function() {
+            // Oculta todos os campos
+            document.querySelectorAll(".campos-servico").forEach(function(campo) {
+                campo.style.display = "none";
+            });
+
+            // Mostra os campos correspondentes ao tipo de serviço selecionado
+            const tipoServico = this.value;
+            document.getElementById("campos_" + tipoServico).style.display = "block";
+        });
+    </script>
+</body>
+</html>

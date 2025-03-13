@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resultado - Calculadora de Valor/Hora</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Cabeçalho -->
+    <header>
+        <h1>Resultado</h1>
+        <h2>Valor/Hora Sugerido</h2>
+    </header>
+
+    <!-- Resultado -->
+    <div class="container">
+        <div class="upload-container">
+            <h3>Área: {{ session["area"] }}</h3>
+            <p>O valor/hora sugerido é:</p>
+            <h2>R$ {{ "%.2f"|format(valor_hora) }}</h2>
+            <a href="{{ url_for('extras') }}" class="btn-primary">Funcionalidades Extras</a>
+        </div>
+    </div>
+
+    <!-- Rodapé -->
+    <footer>
+        <p>© 2023 Calculadora de Valor/Hora</p>
+    </footer>
+</body>
+</html>

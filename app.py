@@ -26,16 +26,22 @@ usuarios = {}
 def init_db():
     conn = sqlite3.connect('calculadora.db')
     c = conn.cursor()
-    c.execute('''CREATE TABLE IF NOT EXISTS calculos
-                 (id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+    c.execute('''CREATE TABLE IF NOT EXISTS usuarios (
+                  email TEXT PRIMARY KEY,
+                  senha TEXT)''')
+
+    c.execute('''CREATE TABLE IF NOT EXISTS calculos (
+                  id INTEGER PRIMARY KEY AUTOINCREMENT,
                   usuario TEXT,
                   area TEXT,
                   valor_hora REAL,
                   data TEXT)''')
+
     conn.commit()
     conn.close()
 
-init_db()
+init_db()  # Garante que o banco é inicializado ao iniciar o Flask
 
 # Rota principal (login)
 @app.route("/", methods=["GET", "POST"])
@@ -43,12 +49,21 @@ def index():
     if request.method == "POST":
         email = request.form.get("email")
         senha = request.form.get("senha")
-        if email in usuarios and usuarios[email] == senha:
-            session["usuario"] = email
+
+        conn = sqlite3.connect('calculadora.db')
+        c = conn.cursor()
+        c.execute("SELECT * FROM usuarios WHERE email = ? AND senha = ?", (email, senha))
+        user = c.fetchone()
+        conn.close()
+
+        if user:
+            session["usuario"] = email  # Mantém sessão ativa
             return redirect(url_for("area"))
         else:
             return render_template("index.html", erro="Credenciais inválidas.")
+
     return render_template("index.html")
+
 
 # Rota de cadastro
 @app.route("/cadastro", methods=["GET", "POST"])
@@ -56,12 +71,22 @@ def cadastro():
     if request.method == "POST":
         email = request.form.get("email")
         senha = request.form.get("senha")
-        if email in usuarios:
+
+        conn = sqlite3.connect('calculadora.db')
+        c = conn.cursor()
+        c.execute("SELECT * FROM usuarios WHERE email = ?", (email,))
+        if c.fetchone():
             return render_template("cadastro.html", erro="E-mail já cadastrado.")
-        usuarios[email] = senha
-        session["usuario"] = email
+
+        c.execute("INSERT INTO usuarios (email, senha) VALUES (?, ?)", (email, senha))
+        conn.commit()
+        conn.close()
+
+        session["usuario"] = email  # Armazena sessão
         return redirect(url_for("area"))
+
     return render_template("cadastro.html")
+
 
 # Rota de escolha da área
 @app.route("/area", methods=["GET", "POST"])
@@ -123,15 +148,28 @@ def formulario():
 # Rota para cálculo de serviço frequente
 @app.route("/calcular_frequente", methods=["GET", "POST"])
 def calcular_frequente():
-    if "usuario" not in session or "area" not in session or "tipo_servico" not in session:
+    if "usuario" not in session or "area" not in session:
         return redirect(url_for("index"))
 
     if request.method == "POST":
-        horas_mes = float(request.form.get("horas_mes"))
-        remuneracao_media = salarios_medios.get(session["area"], 50000)
-        valor_hora = remuneracao_media / horas_mes
-        session["valor_hora"] = valor_hora
-        return redirect(url_for("resultado"))
+        horas_mes = request.form.get("horas_mes")
+
+        if not horas_mes:
+            return render_template("calcular_frequente.html", erro="Preencha as horas!")
+
+        try:
+            horas_mes = float(horas_mes)
+
+            if horas_mes <= 0:  # Evita divisão por zero
+                return render_template("calcular_frequente.html", erro="As horas devem ser maiores que zero!")
+
+            remuneracao_media = salarios_medios.get(session["area"], 50000)
+            valor_hora = remuneracao_media / max(horas_mes, 1)  # Garante que horas_mes seja pelo menos 1
+
+            session["valor_hora"] = round(valor_hora, 2)  # Armazena resultado na sessão arredondado
+            return redirect(url_for("resultado"))
+        except ValueError:
+            return render_template("calcular_frequente.html", erro="Digite um número válido!")
 
     return render_template("calcular_frequente.html")
 
